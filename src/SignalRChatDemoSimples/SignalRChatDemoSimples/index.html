@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Simple Chat</title>
+    <link href="Content/estilo.css" rel="stylesheet" />
+    <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.1.2.min.js"></script>
+    <!--Criado pelo signalR em tempo de execução-->
+    <script src="signalr/hubs"></script>
+</head>
+<body>
+    <p>Demo baseado em <a target="_blank" href="http://www.asp.net/signalr/overview/getting-started/tutorial-getting-started-with-signalr">Tutorial: Começando com SignalR 2</a></p>
+    <p>Abra mais de uma tela para testar</p>
+    <div class="container">
+        <input type="text" id="message" />
+        <input type="button" id="sendmessage" value="Send" />
+        <input type="hidden" id="displayname" />
+        <ul id="discussion"></ul>
+    </div>
+    <script type="text/javascript">
+
+        $().ready(function(){
+
+            // declara uma referência a um proxy do hub.
+            var chat = $.connection.chatHub;
+
+            // Função que recebe do servidor as mensagens.
+            chat.client.broadcastMessage = function (name, message) {
+
+                // Inserindo o nome e a mensagem vindos do server em variáveis.
+                var encodedName = $('<div />').text(name).html();
+                var encodedMsg = $('<div />').text(message).html();
+
+                // Add no html.
+                $('#discussion').append('<li><strong>' + encodedName
+                    + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+            };
+
+            // Pegando o nome de quem está entrando na página.
+            var nome = prompt('Seu nome:', '');
+            $('#displayname').val(nome);
+            //chat.server.send(nome, "entrou na sala.");
+
+            // Jogando o foco do mouse na input.
+            $('#message').focus();
+
+
+            //Enviando a mensagem
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                    // Call the Send method on the hub.
+                    chat.server.send($('#displayname').val(), $('#message').val());
+                    // Clear text box and reset focus for next comment.
+                    $('#message').val('').focus();
+                });
+            });
+
+        });
+
+
+    </script>
+</body>
+</html>
